@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* ── Dark mode: class-based ───────────────────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Brand Design Tokens ──────────────────────────────────── */
+@theme {
+  --color-brand-gold: #927633;
+  --color-brand-charcoal: #565656;
+  --color-brand-light-bg: #F4F4F4;
+  --color-brand-dark-bg: #000000;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ── Dialog / Modal animation ─────────────────────────────── */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+dialog[open] {
+  animation: modal-in 0.2s ease-out forwards;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+/* ── Custom scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
+/* ── Text selection ────────────────────────────────────────── */
+::selection {
+  background: rgba(146, 118, 51, 0.3);
+  color: #f5f5f5;
+}
+
+/* ── Body defaults ─────────────────────────────────────────── */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Number input: hide spinners ───────────────────────────── */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ── Select: hide default system arrow ─────────────────────── */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
