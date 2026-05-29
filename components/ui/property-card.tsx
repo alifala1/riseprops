@@ -119,8 +119,8 @@ export default function PropertyCard({
     <article
       className={clsx(
         'group relative flex flex-col',
-        'bg-zinc-900/60 dark:bg-zinc-900/60 bg-white',
-        'border dark:border-zinc-800 border-zinc-200',
+        'bg-white dark:bg-zinc-900/60',
+        'border border-zinc-200 dark:border-zinc-800',
         'rounded-xl overflow-hidden',
         'hover:scale-[1.01] hover:shadow-xl hover:shadow-black/30 dark:hover:border-zinc-700 hover:border-zinc-300',
         'transition-all duration-200',
@@ -128,7 +128,7 @@ export default function PropertyCard({
       )}
     >
       {/* Image / Carousel / Placeholder */}
-      <div className="relative h-44 bg-zinc-800/50 dark:bg-zinc-800/50 bg-zinc-100 overflow-hidden group/carousel">
+      <div className="relative h-44 bg-zinc-100 dark:bg-zinc-800/50 overflow-hidden group/carousel">
         {imageUrls.length > 0 ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -166,7 +166,7 @@ export default function PropertyCard({
             )}
           </>
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-zinc-500 gap-2 bg-zinc-800/20">
+          <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 gap-2 bg-zinc-100 dark:bg-zinc-800/20">
             <Home className="w-8 h-8 opacity-50" />
             <span className="text-[10px] font-bold tracking-widest uppercase">No Images</span>
           </div>
@@ -264,11 +264,11 @@ export default function PropertyCard({
           <div className="mt-auto">
             <button
               onClick={() => setShowNotes(!showNotes)}
-              className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-amber-950/30 border border-amber-900/40 hover:bg-amber-950/50 transition-colors duration-150"
+              className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 hover:bg-amber-100 dark:hover:bg-amber-950/50 transition-colors duration-150"
             >
               <div className="flex items-center gap-2">
-                <Lock className="w-3 h-3 text-amber-500 shrink-0" />
-                <span className="text-xs font-semibold text-amber-500 tracking-wide uppercase">
+                <Lock className="w-3 h-3 text-amber-600 dark:text-amber-500 shrink-0" />
+                <span className="text-xs font-semibold text-amber-700 dark:text-amber-500 tracking-wide uppercase">
                   Private · Broker Notes
                 </span>
               </div>
@@ -279,8 +279,8 @@ export default function PropertyCard({
               )}
             </button>
             {showNotes && (
-              <div className="mt-2 px-3 py-2.5 rounded-lg bg-amber-950/20 border border-amber-900/30">
-                <p className="text-xs text-amber-200/70 leading-relaxed whitespace-pre-wrap">
+              <div className="mt-2 px-3 py-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
+                <p className="text-xs text-amber-900 dark:text-amber-200/70 leading-relaxed whitespace-pre-wrap">
                   {property.natoor_notes}
                 </p>
               </div>
@@ -293,7 +293,7 @@ export default function PropertyCard({
           <div className="mt-auto">
             <button
               onClick={() => setShowMap(!showMap)}
-              className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-zinc-800/30 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700/50 hover:bg-zinc-800/50 transition-colors duration-150"
+              className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors duration-150"
             >
               <div className="flex items-center gap-2">
                 <MapIcon className="w-3 h-3 text-zinc-500 shrink-0" />
