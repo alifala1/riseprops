@@ -196,7 +196,7 @@ export default function PropertyCard({
                 >
                   <ChevronDown className="w-4 h-4 -rotate-90" />
                 </button>
-                <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+                <div className="absolute bottom-4 left-3 right-32 flex justify-start flex-wrap gap-1.5 z-10 pointer-events-none">
                   {imageUrls.map((_, i) => (
                     <div
                       key={i}
