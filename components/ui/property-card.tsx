@@ -16,9 +16,15 @@ import {
   ExternalLink,
   Phone,
   Users,
+  Download,
+  X,
+  Loader2,
 } from 'lucide-react';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { clsx } from 'clsx';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 
 interface PropertyCardProps {
   property: Property;
@@ -93,6 +99,8 @@ export default function PropertyCard({
   const [showMap, setShowMap] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [downloadingImages, setDownloadingImages] = useState(false);
 
   const imageUrls = property.image_urls?.length 
     ? property.image_urls 
@@ -115,6 +123,39 @@ export default function PropertyCard({
     onDelete(property.id);
   };
 
+  const handleDownloadZip = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (imageUrls.length === 0) return;
+    
+    try {
+      setDownloadingImages(true);
+      const zip = new JSZip();
+      
+      const fetchPromises = imageUrls.map(async (url, index) => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Failed to fetch image ${index + 1}`);
+        const blob = await response.blob();
+        
+        const urlParts = url.split('/');
+        let filename = urlParts[urlParts.length - 1].split('?')[0];
+        if (!filename) filename = `image-${index + 1}.jpg`;
+        else filename = `${index + 1}-${filename}`;
+        
+        zip.file(filename, blob);
+      });
+      
+      await Promise.all(fetchPromises);
+      const content = await zip.generateAsync({ type: 'blob' });
+      const safeTitle = property.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'property';
+      saveAs(content, `${safeTitle}_images.zip`);
+    } catch (error) {
+      console.error("Error downloading images:", error);
+      alert("Failed to download images. Please try again.");
+    } finally {
+      setDownloadingImages(false);
+    }
+  };
+
   return (
     <article
       className={clsx(
@@ -135,7 +176,11 @@ export default function PropertyCard({
             <img
               src={imageUrls[currentImageIndex]}
               alt={`${property.title} - Image ${currentImageIndex + 1}`}
-              className="w-full h-full object-cover transition-opacity duration-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxOpen(true);
+              }}
+              className="w-full h-full object-cover transition-opacity duration-300 cursor-pointer"
             />
             {imageUrls.length > 1 && (
               <>
@@ -196,6 +241,20 @@ export default function PropertyCard({
 
         {/* Action buttons — permanently visible */}
         <div className="absolute bottom-3 right-3 flex gap-2 transition-opacity duration-200">
+          {imageUrls.length > 0 && (
+            <button
+              onClick={handleDownloadZip}
+              disabled={downloadingImages}
+              aria-label="Download all images"
+              className="w-8 h-8 rounded-lg bg-zinc-900/90 backdrop-blur-sm flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-800 border border-zinc-700 transition-all duration-150 disabled:opacity-50"
+            >
+              {downloadingImages ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+            </button>
+          )}
           <button
             onClick={() => onEdit(property)}
             aria-label="Edit property"
@@ -340,6 +399,69 @@ export default function PropertyCard({
           Added {formatDate(property.created_at)}
         </div>
       </div>
+      
+      {/* Fullscreen Lightbox Portal */}
+      {lightboxOpen && typeof document !== 'undefined' && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center"
+          onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
+        >
+          <button 
+            className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full transition-all"
+            onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
+          >
+            <X className="w-6 h-6" />
+          </button>
+          
+          {imageUrls.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
+              }}
+              className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all"
+            >
+              <ChevronDown className="w-8 h-8 rotate-90" />
+            </button>
+          )}
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageUrls[currentImageIndex]}
+            alt={`Fullscreen ${property.title}`}
+            className="max-w-[90vw] max-h-[90vh] object-contain cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          />
+          
+          {imageUrls.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length);
+              }}
+              className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all"
+            >
+              <ChevronDown className="w-8 h-8 -rotate-90" />
+            </button>
+          )}
+          
+          {imageUrls.length > 1 && (
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
+              {imageUrls.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(i); }}
+                  className={clsx(
+                    "w-2.5 h-2.5 rounded-full transition-all duration-300",
+                    i === currentImageIndex ? "bg-brand-gold scale-125" : "bg-white/50 hover:bg-white/80"
+                  )}
+                />
+              ))}
+            </div>
+          )}
+        </div>,
+        document.body
+      )}
     </article>
   );
 }
