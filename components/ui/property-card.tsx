@@ -254,7 +254,7 @@ export default function PropertyCard({
 
         {/* Description */}
         {property.description && (
-          <p className="text-xs dark:text-zinc-500 text-zinc-400 line-clamp-2 leading-relaxed">
+          <p className="text-xs dark:text-zinc-500 text-zinc-400 leading-relaxed whitespace-pre-wrap">
             {property.description}
           </p>
         )}
