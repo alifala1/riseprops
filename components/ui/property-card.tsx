@@ -186,13 +186,13 @@ export default function PropertyCard({
               <>
                 <button
                   onClick={prevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm transition-all opacity-0 group-hover/carousel:opacity-100"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
                 >
                   <ChevronDown className="w-4 h-4 rotate-90" />
                 </button>
                 <button
                   onClick={nextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm transition-all opacity-0 group-hover/carousel:opacity-100"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm transition-all opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100"
                 >
                   <ChevronDown className="w-4 h-4 -rotate-90" />
                 </button>
