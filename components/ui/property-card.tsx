@@ -77,47 +77,7 @@ function formatDate(iso: string): string {
   });
 }
 
-function getMapEmbedUrl(input: string, property: Property): string {
-  if (!input) return '';
-  
-  if (input.includes('<iframe') && input.includes('src="')) {
-    return input.match(/src="([^"]+)"/)?.[1] || '';
-  }
-  if (input.includes('embed')) return input;
-  
-  // Try to extract lat/lng with @ (e.g., @33.88,35.56)
-  const coordsMatch = input.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if (coordsMatch) {
-    return `https://maps.google.com/maps?q=${coordsMatch[1]},${coordsMatch[2]}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-  }
-  
-  // Try to extract lat/lng from q= or ll=
-  const queryCoords = input.match(/[?&](q|ll)=(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if (queryCoords) {
-    return `https://maps.google.com/maps?q=${queryCoords[2]},${queryCoords[3]}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-  }
 
-  // Try to extract place name from /place/Name
-  const placeMatch = input.match(/\/place\/([^/?]+)/);
-  if (placeMatch) {
-    return `https://maps.google.com/maps?q=${placeMatch[1]}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-  }
-
-  // Try to extract the search query param
-  const qParam = input.match(/[?&]q=([^&]+)/);
-  if (qParam) {
-    return `https://maps.google.com/maps?q=${qParam[1]}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-  }
-  
-  // If it's any other URL, pass the URL itself to the embed query (best effort for shortlinks)
-  if (input.startsWith('http')) {
-    return `https://maps.google.com/maps?q=${encodeURIComponent(input)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-  }
-
-  // Last resort fallback if they typed random text
-  const query = encodeURIComponent(input.length > 5 ? input : `${property.title}, ${property.location}, Lebanon`);
-  return `https://maps.google.com/maps?q=${query}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
-}
 
 export default function PropertyCard({
   property,
@@ -125,7 +85,6 @@ export default function PropertyCard({
   onDelete,
 }: PropertyCardProps) {
   const [showNotes, setShowNotes] = useState(false);
-  const [showMap, setShowMap] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -376,12 +335,14 @@ export default function PropertyCard({
           </div>
         )}
 
-        {/* Google Maps Embed */}
+        {/* Google Maps Link */}
         {property.google_maps_url && (
           <div className="mt-auto">
-            <button
-              onClick={() => setShowMap(!showMap)}
-              className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors duration-150"
+            <a
+              href={property.google_maps_url.includes('<') ? '#' : property.google_maps_url}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 transition-colors duration-150 group/map"
             >
               <div className="flex items-center gap-2">
                 <MapIcon className="w-3 h-3 text-zinc-500 shrink-0" />
@@ -389,36 +350,8 @@ export default function PropertyCard({
                   Location Map
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <a 
-                  href={property.google_maps_url.includes('<') ? '#' : property.google_maps_url} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-brand-gold hover:text-brand-gold/80"
-                  title="Open in Google Maps"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-                {showMap ? (
-                  <ChevronUp className="w-3 h-3 text-zinc-500" />
-                ) : (
-                  <ChevronDown className="w-3 h-3 text-zinc-500" />
-                )}
-              </div>
-            </button>
-            {showMap && (
-              <div className="mt-2 w-full h-48 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  loading="lazy"
-                  allowFullScreen
-                  src={getMapEmbedUrl(property.google_maps_url, property)}
-                />
-              </div>
-            )}
+              <ExternalLink className="w-3.5 h-3.5 text-brand-gold group-hover/map:text-brand-gold/80 transition-colors" />
+            </a>
           </div>
         )}
 
