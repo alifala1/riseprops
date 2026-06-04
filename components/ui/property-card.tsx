@@ -328,7 +328,6 @@ export default function PropertyCard({
 
         {/* Price */}
         <div className="flex items-center gap-1.5">
-          <DollarSign className="w-3.5 h-3.5 text-brand-gold shrink-0" />
           <span className="text-brand-gold font-bold text-lg">
             {formatPrice(property.price, property.property_type, property.rental_period)}
           </span>
