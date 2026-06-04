@@ -242,12 +242,17 @@ export default function PropertyFormModal({
       }
 
       onClose();
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : 'Failed to save property. Please try again.';
-      setError(msg);
+    } catch (err: any) {
+      console.error("Property save error:", err);
+      let msg = 'Failed to save property. Please try again.';
+      if (err instanceof Error) {
+        msg = err.message;
+      } else if (err && typeof err === 'object' && err.message) {
+        msg = err.message;
+      } else if (typeof err === 'string') {
+        msg = err;
+      }
+      setError(`Error: ${msg}`);
     } finally {
       setLoading(false);
     }
