@@ -55,14 +55,18 @@ const statusConfig: Record<
   },
 };
 
-function formatPrice(price: number, type: Property['property_type']): string {
+function formatPrice(price: number, type: Property['property_type'], rentalPeriod?: Property['rental_period']): string {
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     maximumFractionDigits: 0,
     notation: price >= 1_000_000 ? 'compact' : 'standard',
   }).format(price);
-  return type === 'Rent' ? `${formatted}/mo` : formatted;
+  
+  if (type === 'Rent') {
+    return rentalPeriod === 'Yearly' ? `${formatted}/yr` : `${formatted}/mo`;
+  }
+  return formatted;
 }
 
 function formatDate(iso: string): string {
@@ -283,7 +287,7 @@ export default function PropertyCard({
         <div className="flex items-center gap-1.5">
           <DollarSign className="w-3.5 h-3.5 text-brand-gold shrink-0" />
           <span className="text-brand-gold font-bold text-lg">
-            {formatPrice(property.price, property.property_type)}
+            {formatPrice(property.price, property.property_type, property.rental_period)}
           </span>
         </div>
 

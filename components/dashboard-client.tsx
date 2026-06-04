@@ -68,11 +68,18 @@ export default function DashboardClient({
       .filter((p) => p.property_type === 'Sale' && (p.status === 'Available' || p.status === 'Pending'))
       .reduce((sum, p) => sum + p.price, 0);
 
-    const availableRentSum = properties
-      .filter((p) => p.property_type === 'Rent' && (p.status === 'Available' || p.status === 'Pending'))
-      .reduce((sum, p) => sum + p.price, 0);
+    let rentCommission = 0;
+    properties.forEach((p) => {
+      if (p.property_type === 'Rent' && (p.status === 'Available' || p.status === 'Pending')) {
+        if (p.rental_period === 'Yearly') {
+          rentCommission += p.price / 6;
+        } else {
+          rentCommission += p.price * 2; // Default Monthly logic
+        }
+      }
+    });
 
-    const totalCommission = (0.05 * availableSaleSum) + (2 * availableRentSum);
+    const totalCommission = (0.05 * availableSaleSum) + rentCommission;
 
     return { active: active.length, salePortfolio, totalCommission };
   }, [properties]);
@@ -207,7 +214,7 @@ export default function DashboardClient({
             value={formatCurrency(metrics.totalCommission)}
             icon={<TrendingUp className="w-5 h-5" />}
             color="amber"
-            sub="5% Sale + 2x Monthly Rent"
+            sub="5% Sale + Rent (2mo / 1/6th Yr)"
           />
         </div>
 

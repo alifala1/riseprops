@@ -30,6 +30,7 @@ import {
   X,
   Phone,
   Users,
+  Clock,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -55,6 +56,7 @@ const defaultForm: PropertyFormData = {
   natoor_notes: '',
   phone_number: '',
   involved_brokers: false,
+  rental_period: '',
 };
 
 function propertyToForm(p: Property): PropertyFormData {
@@ -72,6 +74,7 @@ function propertyToForm(p: Property): PropertyFormData {
     natoor_notes: p.natoor_notes ?? '',
     phone_number: p.phone_number ?? '',
     involved_brokers: p.involved_brokers ?? false,
+    rental_period: p.rental_period ?? '',
   };
 }
 
@@ -152,6 +155,8 @@ export default function PropertyFormModal({
       return 'A valid price greater than 0 is required.';
     if (form.image_urls.length + form.image_files.length > 10)
       return 'You can only attach up to 10 images per property.';
+    if (form.property_type === 'Rent' && !form.rental_period)
+      return 'Please specify if the rental is Monthly or Yearly.';
     return null;
   };
 
@@ -209,6 +214,7 @@ export default function PropertyFormModal({
         natoor_notes: form.natoor_notes.trim() || null,
         phone_number: form.phone_number.trim() || null,
         involved_brokers: form.involved_brokers,
+        rental_period: form.property_type === 'Rent' ? (form.rental_period as 'Monthly' | 'Yearly') : null,
       };
 
       if (isEditMode && property) {
@@ -310,6 +316,29 @@ export default function PropertyFormModal({
             </div>
           </FieldWrap>
         </div>
+
+        {/* Row 2.5: Rental Period (Only if Rent) */}
+        {form.property_type === 'Rent' && (
+          <FieldWrap label="Rental Period" icon={<Clock className="w-3.5 h-3.5 text-brand-gold" />} required>
+            <div className="flex gap-3 h-[42px]">
+              {(['Monthly', 'Yearly']).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => set('rental_period', t as 'Monthly' | 'Yearly')}
+                  className={clsx(
+                    'flex-1 rounded-lg text-sm font-semibold border transition-all duration-200',
+                    form.rental_period === t
+                      ? 'bg-brand-gold border-brand-gold text-white shadow-md shadow-brand-gold/20'
+                      : 'dark:bg-zinc-800/60 bg-zinc-50 dark:border-zinc-700 border-zinc-300 dark:text-zinc-400 text-zinc-600 hover:border-brand-gold/50'
+                  )}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </FieldWrap>
+        )}
 
         {/* Row 3: Location + Category */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

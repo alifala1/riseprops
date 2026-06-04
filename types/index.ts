@@ -30,6 +30,7 @@ export interface Property {
   natoor_notes: string | null;
   phone_number: string | null;
   involved_brokers: boolean;
+  rental_period: 'Monthly' | 'Yearly' | null;
   user_id: string;
 }
 
@@ -47,6 +48,7 @@ export interface PropertyFormData {
   natoor_notes: string;
   phone_number: string;
   involved_brokers: boolean;
+  rental_period: 'Monthly' | 'Yearly' | '';
 }
 
 export const PROPERTY_LOCATIONS: PropertyLocation[] = [
