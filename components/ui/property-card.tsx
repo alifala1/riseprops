@@ -89,6 +89,33 @@ export default function PropertyCard({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [downloadingImages, setDownloadingImages] = useState(false);
+  
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length);
+    } else if (isRightSwipe) {
+      setCurrentImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
+    }
+  };
 
   const imageUrls = property.image_urls?.length 
     ? property.image_urls 
@@ -184,7 +211,12 @@ export default function PropertyCard({
       )}
     >
       {/* Image / Carousel / Placeholder */}
-      <div className="relative h-44 bg-zinc-100 dark:bg-zinc-800/50 overflow-hidden group/carousel">
+      <div 
+        className="relative h-44 bg-zinc-100 dark:bg-zinc-800/50 overflow-hidden group/carousel"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {imageUrls.length > 0 ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -392,8 +424,11 @@ export default function PropertyCard({
       {/* Fullscreen Lightbox Portal */}
       {lightboxOpen && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center"
+          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center touch-none"
           onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         >
           <div className="absolute top-6 right-6 flex items-center gap-4">
             <button 
