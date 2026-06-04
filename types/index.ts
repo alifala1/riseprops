@@ -10,7 +10,8 @@ export type PropertyCategory =
   | 'Residential Apartment'
   | 'Commercial Office'
   | 'Retail Shop'
-  | 'Industrial/Warehouse';
+  | 'Industrial/Warehouse'
+  | 'Land';
 
 export type PropertyStatus = 'Available' | 'Pending' | 'Sold' | 'Rented';
 
@@ -63,6 +64,7 @@ export const PROPERTY_CATEGORIES: PropertyCategory[] = [
   'Commercial Office',
   'Retail Shop',
   'Industrial/Warehouse',
+  'Land',
 ];
 
 export const PROPERTY_STATUSES: PropertyStatus[] = [
