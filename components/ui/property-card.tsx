@@ -111,9 +111,36 @@ export default function PropertyCard({
     onDelete(property.id);
   };
 
+  const handleDownloadSingle = async (url: string, index: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    try {
+      setDownloadingImages(true);
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch image');
+      const blob = await response.blob();
+      
+      const urlParts = url.split('/');
+      let filename = urlParts[urlParts.length - 1].split('?')[0];
+      if (!filename) filename = 'image.jpg';
+      
+      const safeTitle = property.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'property';
+      saveAs(blob, `${safeTitle}_${index + 1}_${filename}`);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      alert("Failed to download image. Please try again.");
+    } finally {
+      setDownloadingImages(false);
+    }
+  };
+
   const handleDownloadZip = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (imageUrls.length === 0) return;
+    
+    if (imageUrls.length === 1) {
+      await handleDownloadSingle(imageUrls[0], 0);
+      return;
+    }
     
     try {
       setDownloadingImages(true);
@@ -368,12 +395,23 @@ export default function PropertyCard({
           className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center"
           onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
         >
-          <button 
-            className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full transition-all"
-            onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
-          >
-            <X className="w-6 h-6" />
-          </button>
+          <div className="absolute top-6 right-6 flex items-center gap-4">
+            <button 
+              className="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full transition-all"
+              onClick={(e) => handleDownloadSingle(imageUrls[currentImageIndex], currentImageIndex, e)}
+              title="Download this image"
+              disabled={downloadingImages}
+            >
+              {downloadingImages ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+            </button>
+            <button 
+              className="w-10 h-10 flex items-center justify-center text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full transition-all"
+              onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
+              title="Close gallery"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
           
           {imageUrls.length > 1 && (
             <button
