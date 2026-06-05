@@ -59,7 +59,7 @@ function formatPrice(price: number, type: Property['property_type'], rentalPerio
   const formatted = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
     notation: price >= 1_000_000 ? 'compact' : 'standard',
   }).format(price);
   
