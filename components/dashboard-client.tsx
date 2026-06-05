@@ -147,15 +147,13 @@ export default function DashboardClient({
     const { error } = await supabase
       .from('properties')
       .delete()
-      .eq('id', id)
-      .eq('user_id', userId);
+      .eq('id', id);
 
     if (error) {
       // Rollback on failure
       const { data } = await supabase
         .from('properties')
         .select('*')
-        .eq('user_id', userId)
         .order('created_at', { ascending: false });
       if (data) setProperties(data as Property[]);
     }

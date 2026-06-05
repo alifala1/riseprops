@@ -223,7 +223,6 @@ export default function PropertyFormModal({
           .from('properties')
           .update(payload)
           .eq('id', property.id)
-          .eq('user_id', userId)
           .select()
           .single();
 

@@ -27,7 +27,6 @@ async function getSessionAndProperties() {
   const { data: properties } = await supabase
     .from('properties')
     .select('*')
-    .eq('user_id', session.user.id)
     .order('created_at', { ascending: false });
 
   return { session, properties: (properties ?? []) as Property[] };
