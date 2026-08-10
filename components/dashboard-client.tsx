@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Property, PropertyLocation, PropertyType } from '@/types';
+import { getRankedLocations } from '@/lib/locationUtils';
 import PropertyCard from '@/components/ui/property-card';
 import PropertyFormModal from '@/components/ui/property-form-modal';
 import { supabase } from '@/lib/supabaseClient';
@@ -34,13 +35,6 @@ function formatCurrency(n: number): string {
   return `$${n.toLocaleString()}`;
 }
 
-const LOCATIONS: LocationFilter[] = [
-  'All',
-  'Dekwaneh',
-  'Sin el Fil',
-  'Horch Tabet',
-  'Surrounding Areas',
-];
 const STATUSES: StatusFilter[] = ['All', 'Available', 'Pending', 'Sold', 'Rented'];
 
 export default function DashboardClient({
@@ -54,6 +48,10 @@ export default function DashboardClient({
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+
+  const availableLocations = useMemo(() => {
+    return ['All', ...getRankedLocations(properties)];
+  }, [properties]);
 
   // ── Metrics ──────────────────────────────────────────────────────
   const metrics = useMemo(() => {
@@ -267,7 +265,7 @@ export default function DashboardClient({
                 }
                 className="pl-8 pr-8 py-2.5 rounded-xl dark:bg-zinc-900 bg-white dark:border-zinc-800 border-zinc-200 border dark:text-zinc-300 text-zinc-700 focus:outline-none focus:ring-2 focus:ring-brand-gold/50 text-sm appearance-none cursor-pointer transition-all"
               >
-                {LOCATIONS.map((l) => (
+                {availableLocations.map((l) => (
                   <option key={l} value={l}>
                     {l === 'All' ? 'All Locations' : l}
                   </option>
@@ -338,6 +336,7 @@ export default function DashboardClient({
         property={editingProperty}
         userId={userId}
         onSuccess={handleSuccess}
+        existingProperties={properties}
       />
     </div>
   );

@@ -11,9 +11,7 @@ CREATE TABLE IF NOT EXISTS public.properties (
   title           TEXT          NOT NULL,
   description     TEXT,
   price           NUMERIC       NOT NULL,
-  location        TEXT          NOT NULL CHECK (
-                    location IN ('Dekwaneh', 'Sin el Fil', 'Horch Tabet', 'Surrounding Areas')
-                  ),
+  location        TEXT          NOT NULL,
   property_type   TEXT          NOT NULL CHECK (
                     property_type IN ('Sale', 'Rent')
                   ),

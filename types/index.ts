@@ -1,10 +1,6 @@
 export type PropertyType = 'Sale' | 'Rent';
 
-export type PropertyLocation =
-  | 'Dekwaneh'
-  | 'Sin el Fil'
-  | 'Horch Tabet'
-  | 'Surrounding Areas';
+export type PropertyLocation = string;
 
 export type PropertyCategory =
   | 'Residential Apartment'
@@ -56,7 +52,6 @@ export const PROPERTY_LOCATIONS: PropertyLocation[] = [
   'Dekwaneh',
   'Sin el Fil',
   'Horch Tabet',
-  'Surrounding Areas',
 ];
 
 export const PROPERTY_CATEGORIES: PropertyCategory[] = [

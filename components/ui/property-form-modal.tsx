@@ -32,6 +32,7 @@ import {
   Users,
   Clock,
 } from 'lucide-react';
+import LocationCombobox from '@/components/ui/location-combobox';
 import { clsx } from 'clsx';
 
 interface PropertyFormModalProps {
@@ -40,6 +41,7 @@ interface PropertyFormModalProps {
   property?: Property | null; // null = add mode, Property = edit mode
   userId: string;
   onSuccess: (property: Property, mode: 'add' | 'edit') => void;
+  existingProperties?: Property[];
 }
 
 const defaultForm: PropertyFormData = {
@@ -118,6 +120,7 @@ export default function PropertyFormModal({
   property,
   userId,
   onSuccess,
+  existingProperties = [],
 }: PropertyFormModalProps) {
   const isEditMode = Boolean(property);
   const [form, setForm] = useState<PropertyFormData>(defaultForm);
@@ -150,6 +153,7 @@ export default function PropertyFormModal({
 
   const validate = (): string | null => {
     if (!form.title.trim()) return 'Title is required.';
+    if (!form.location.trim()) return 'Location is required.';
     const priceNum = parseFloat(form.price);
     if (!form.price || isNaN(priceNum) || priceNum <= 0)
       return 'A valid price greater than 0 is required.';
@@ -351,17 +355,12 @@ export default function PropertyFormModal({
             icon={<MapPin className="w-3.5 h-3.5 text-brand-gold" />}
             required
           >
-            <select
+            <LocationCombobox
               value={form.location}
-              onChange={handleChange('location')}
-              className={selectBase}
-            >
-              {PROPERTY_LOCATIONS.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => set('location', val)}
+              existingProperties={existingProperties}
+              inputBase={inputBase}
+            />
           </FieldWrap>
 
           <FieldWrap
