@@ -193,7 +193,7 @@ export default function DashboardClient({
         </div>
 
         {/* ── Metrics Banner ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className={`grid grid-cols-1 ${userRole === 'superadmin' ? 'sm:grid-cols-3' : ''} gap-4`}>
           {/* Active Listings */}
           <MetricCard
             label="Active Listings"
@@ -202,22 +202,26 @@ export default function DashboardClient({
             color="gold"
             sub={`${properties.length} total properties`}
           />
-          {/* Sale Portfolio */}
-          <MetricCard
-            label="Sale Portfolio Value"
-            value={formatCurrency(metrics.salePortfolio)}
-            icon={<DollarSign className="w-5 h-5" />}
-            color="emerald"
-            sub="Aggregate of all Sale listings"
-          />
-          {/* Total Commission */}
-          <MetricCard
-            label="Total Available Commission"
-            value={formatCurrency(metrics.totalCommission)}
-            icon={<TrendingUp className="w-5 h-5" />}
-            color="amber"
-            sub="5% Sale + Rent (2mo / 1/6th Yr)"
-          />
+          {userRole === 'superadmin' && (
+            <>
+              {/* Sale Portfolio */}
+              <MetricCard
+                label="Sale Portfolio Value"
+                value={formatCurrency(metrics.salePortfolio)}
+                icon={<DollarSign className="w-5 h-5" />}
+                color="emerald"
+                sub="Aggregate of all Sale listings"
+              />
+              {/* Total Commission */}
+              <MetricCard
+                label="Total Available Commission"
+                value={formatCurrency(metrics.totalCommission)}
+                icon={<TrendingUp className="w-5 h-5" />}
+                color="amber"
+                sub="5% Sale + Rent (2mo / 1/6th Yr)"
+              />
+            </>
+          )}
         </div>
 
         {/* ── Control Bar ── */}
