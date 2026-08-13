@@ -13,6 +13,11 @@ export type PropertyStatus = 'Available' | 'Pending' | 'Sold' | 'Rented';
 
 export type UserRole = 'superadmin' | 'admin';
 
+export interface AppUser {
+  id: string;
+  email: string;
+}
+
 export interface Property {
   id: string;
   created_at: string;

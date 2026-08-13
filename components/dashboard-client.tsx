@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Property, PropertyLocation, PropertyType, UserRole } from '@/types';
+import { Property, PropertyLocation, PropertyType, UserRole, AppUser } from '@/types';
 import { getRankedLocations } from '@/lib/locationUtils';
 import PropertyCard from '@/components/ui/property-card';
 import PropertyFormModal from '@/components/ui/property-form-modal';
@@ -25,6 +25,7 @@ interface DashboardClientProps {
   userId: string;
   userRole: UserRole;
   userEmail: string;
+  allUsers: AppUser[];
 }
 
 type TypeFilter = 'All' | PropertyType;
@@ -44,6 +45,7 @@ export default function DashboardClient({
   userId,
   userRole,
   userEmail,
+  allUsers,
 }: DashboardClientProps) {
   const [properties, setProperties] = useState<Property[]>(initialProperties);
   const [search, setSearch] = useState('');
@@ -345,6 +347,7 @@ export default function DashboardClient({
         existingProperties={properties}
         userRole={userRole}
         userEmail={userEmail}
+        allUsers={allUsers}
       />
     </div>
   );

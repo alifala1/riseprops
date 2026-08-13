@@ -14,6 +14,7 @@ import {
   PropertyStatus,
   PropertyType,
   UserRole,
+  AppUser,
 } from '@/types';
 import {
   Loader2,
@@ -45,6 +46,7 @@ interface PropertyFormModalProps {
   existingProperties?: Property[];
   userRole: UserRole;
   userEmail: string;
+  allUsers: AppUser[];
 }
 
 const defaultForm: PropertyFormData = {
@@ -126,24 +128,25 @@ export default function PropertyFormModal({
   existingProperties = [],
   userRole,
   userEmail,
+  allUsers = [],
 }: PropertyFormModalProps) {
   const isEditMode = Boolean(property);
   const [form, setForm] = useState<PropertyFormData>(defaultForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [postedByEmail, setPostedByEmail] = useState(userEmail);
+  const [selectedOwnerId, setSelectedOwnerId] = useState(userId);
 
   // Populate form when editing
   useEffect(() => {
     if (property) {
       setForm(propertyToForm(property));
-      setPostedByEmail(property.posted_by_email || userEmail);
+      setSelectedOwnerId(property.user_id);
     } else {
       setForm(defaultForm);
-      setPostedByEmail(userEmail);
+      setSelectedOwnerId(userId);
     }
     setError(null);
-  }, [property, isOpen, userEmail]);
+  }, [property, isOpen, userId]);
 
   const set = <K extends keyof PropertyFormData>(
     key: K,
@@ -212,6 +215,10 @@ export default function PropertyFormModal({
 
       const finalImageUrls = [...form.image_urls, ...uploadedUrls];
 
+      // Determine the owner email based on selected owner
+      const ownerUser = allUsers.find(u => u.id === selectedOwnerId);
+      const ownerEmail = ownerUser?.email || userEmail;
+
       const payload = {
         title: form.title.trim(),
         description: form.description.trim() || null,
@@ -227,14 +234,18 @@ export default function PropertyFormModal({
         phone_number: form.phone_number.trim() || null,
         involved_brokers: form.involved_brokers,
         rental_period: form.property_type === 'Rent' ? (form.rental_period as 'Monthly' | 'Yearly') : null,
-        posted_by_email: userRole === 'superadmin' ? postedByEmail.trim() || userEmail : userEmail,
+        posted_by_email: ownerEmail,
       };
 
       if (isEditMode && property) {
         // ── UPDATE ──
+        const updatePayload = userRole === 'superadmin'
+          ? { ...payload, user_id: selectedOwnerId }
+          : payload;
+
         const { data, error: dbError } = await supabase
           .from('properties')
-          .update(payload)
+          .update(updatePayload)
           .eq('id', property.id)
           .select()
           .single();
@@ -576,20 +587,24 @@ export default function PropertyFormModal({
           </div>
         </FieldWrap>
 
-        {/* Row 8.5: Posted By (Superadmin only, edit mode) */}
-        {userRole === 'superadmin' && (
+        {/* Row 8.5: Posted By / Ownership (Superadmin only) */}
+        {userRole === 'superadmin' && allUsers.length > 0 && (
           <FieldWrap
-            label="Posted By"
+            label="Property Owner"
             icon={<Users className="w-3.5 h-3.5 text-brand-gold" />}
-            hint={isEditMode ? 'Change who this property is attributed to.' : 'Email of the person posting this property.'}
+            hint={isEditMode ? 'Transfer ownership to another user.' : 'Assign which user owns this property.'}
           >
-            <input
-              type="email"
-              placeholder="email@example.com"
-              value={postedByEmail}
-              onChange={(e) => setPostedByEmail(e.target.value)}
-              className={inputBase}
-            />
+            <select
+              value={selectedOwnerId}
+              onChange={(e) => setSelectedOwnerId(e.target.value)}
+              className={selectBase}
+            >
+              {allUsers.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.email}
+                </option>
+              ))}
+            </select>
           </FieldWrap>
         )}
 
