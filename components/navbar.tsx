@@ -45,7 +45,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3 shrink-0">
           <div className="w-12 h-12 flex items-center justify-center shrink-0 -ml-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="Rise Properties Logo" className="w-full h-full object-contain scale-[1.3]" />
+            <img src="/logo.png" alt="Rise Properties Logo" className="w-full h-full object-contain" />
           </div>
 
           <div className="flex items-center gap-1.5">
