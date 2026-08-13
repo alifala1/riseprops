@@ -13,6 +13,7 @@ import {
   PropertyCategory,
   PropertyStatus,
   PropertyType,
+  UserRole,
 } from '@/types';
 import {
   Loader2,
@@ -42,6 +43,8 @@ interface PropertyFormModalProps {
   userId: string;
   onSuccess: (property: Property, mode: 'add' | 'edit') => void;
   existingProperties?: Property[];
+  userRole: UserRole;
+  userEmail: string;
 }
 
 const defaultForm: PropertyFormData = {
@@ -121,21 +124,26 @@ export default function PropertyFormModal({
   userId,
   onSuccess,
   existingProperties = [],
+  userRole,
+  userEmail,
 }: PropertyFormModalProps) {
   const isEditMode = Boolean(property);
   const [form, setForm] = useState<PropertyFormData>(defaultForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [postedByEmail, setPostedByEmail] = useState(userEmail);
 
   // Populate form when editing
   useEffect(() => {
     if (property) {
       setForm(propertyToForm(property));
+      setPostedByEmail(property.posted_by_email || userEmail);
     } else {
       setForm(defaultForm);
+      setPostedByEmail(userEmail);
     }
     setError(null);
-  }, [property, isOpen]);
+  }, [property, isOpen, userEmail]);
 
   const set = <K extends keyof PropertyFormData>(
     key: K,
@@ -219,6 +227,7 @@ export default function PropertyFormModal({
         phone_number: form.phone_number.trim() || null,
         involved_brokers: form.involved_brokers,
         rental_period: form.property_type === 'Rent' ? (form.rental_period as 'Monthly' | 'Yearly') : null,
+        posted_by_email: userRole === 'superadmin' ? postedByEmail.trim() || userEmail : userEmail,
       };
 
       if (isEditMode && property) {
@@ -566,6 +575,23 @@ export default function PropertyFormModal({
             </div>
           </div>
         </FieldWrap>
+
+        {/* Row 8.5: Posted By (Superadmin only, edit mode) */}
+        {userRole === 'superadmin' && (
+          <FieldWrap
+            label="Posted By"
+            icon={<Users className="w-3.5 h-3.5 text-brand-gold" />}
+            hint={isEditMode ? 'Change who this property is attributed to.' : 'Email of the person posting this property.'}
+          >
+            <input
+              type="email"
+              placeholder="email@example.com"
+              value={postedByEmail}
+              onChange={(e) => setPostedByEmail(e.target.value)}
+              className={inputBase}
+            />
+          </FieldWrap>
+        )}
 
         {/* Error */}
         {error && (

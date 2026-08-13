@@ -11,6 +11,8 @@ export type PropertyCategory =
 
 export type PropertyStatus = 'Available' | 'Pending' | 'Sold' | 'Rented';
 
+export type UserRole = 'superadmin' | 'admin';
+
 export interface Property {
   id: string;
   created_at: string;
@@ -29,6 +31,7 @@ export interface Property {
   involved_brokers: boolean;
   rental_period: 'Monthly' | 'Yearly' | null;
   user_id: string;
+  posted_by_email: string | null;
 }
 
 export interface PropertyFormData {

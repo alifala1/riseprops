@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { Property } from '@/types';
+import { Property, UserRole } from '@/types';
 import Navbar from '@/components/navbar';
 import DashboardClient from '@/components/dashboard-client';
 
@@ -22,18 +22,36 @@ async function getSessionAndProperties() {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) return { session: null, properties: [] };
+  if (!session) return { session: null, properties: [], userRole: 'admin' as UserRole, userEmail: '' };
 
-  const { data: properties } = await supabase
+  const userEmail = session.user.email || '';
+
+  // Fetch user role
+  const { data: roleData } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', session.user.id)
+    .single();
+
+  const userRole: UserRole = (roleData?.role as UserRole) || 'admin';
+
+  // Superadmins see all properties; admins see only their own
+  let query = supabase
     .from('properties')
     .select('*')
     .order('created_at', { ascending: false });
 
-  return { session, properties: (properties ?? []) as Property[] };
+  if (userRole !== 'superadmin') {
+    query = query.eq('user_id', session.user.id);
+  }
+
+  const { data: properties } = await query;
+
+  return { session, properties: (properties ?? []) as Property[], userRole, userEmail };
 }
 
 export default async function DashboardPage() {
-  const { session, properties } = await getSessionAndProperties();
+  const { session, properties, userRole, userEmail } = await getSessionAndProperties();
 
   if (!session) redirect('/');
 
@@ -44,6 +62,8 @@ export default async function DashboardPage() {
         <DashboardClient
           initialProperties={properties}
           userId={session.user.id}
+          userRole={userRole}
+          userEmail={userEmail}
         />
       </main>
     </div>

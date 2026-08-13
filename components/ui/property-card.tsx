@@ -1,6 +1,6 @@
 'use client';
 
-import { Property } from '@/types';
+import { Property, UserRole } from '@/types';
 import {
   MapPin,
   Tag,
@@ -30,6 +30,8 @@ interface PropertyCardProps {
   property: Property;
   onEdit: (property: Property) => void;
   onDelete: (id: string) => void;
+  userRole: UserRole;
+  currentUserId: string;
 }
 
 const statusConfig: Record<
@@ -83,7 +85,10 @@ export default function PropertyCard({
   property,
   onEdit,
   onDelete,
+  userRole,
+  currentUserId,
 }: PropertyCardProps) {
+  const canEditDelete = userRole === 'superadmin' || property.user_id === currentUserId;
   const [showNotes, setShowNotes] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -302,20 +307,24 @@ export default function PropertyCard({
               )}
             </button>
           )}
-          <button
-            onClick={() => onEdit(property)}
-            aria-label="Edit property"
-            className="w-8 h-8 rounded-lg bg-zinc-900/90 backdrop-blur-sm flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-800 border border-zinc-700 transition-all duration-150"
-          >
-            <Edit2 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={handleDelete}
-            aria-label="Delete property"
-            className="w-8 h-8 rounded-lg bg-zinc-900/90 backdrop-blur-sm flex items-center justify-center text-zinc-300 hover:text-red-400 hover:bg-red-950/60 border border-zinc-700 hover:border-red-800/60 transition-all duration-150"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {canEditDelete && (
+            <>
+              <button
+                onClick={() => onEdit(property)}
+                aria-label="Edit property"
+                className="w-8 h-8 rounded-lg bg-zinc-900/90 backdrop-blur-sm flex items-center justify-center text-zinc-300 hover:text-white hover:bg-zinc-800 border border-zinc-700 transition-all duration-150"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={handleDelete}
+                aria-label="Delete property"
+                className="w-8 h-8 rounded-lg bg-zinc-900/90 backdrop-blur-sm flex items-center justify-center text-zinc-300 hover:text-red-400 hover:bg-red-950/60 border border-zinc-700 hover:border-red-800/60 transition-all duration-150"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -414,9 +423,16 @@ export default function PropertyCard({
         )}
 
         {/* Footer */}
-        <div className="pt-2 mt-auto border-t dark:border-zinc-800 border-zinc-100 flex items-center gap-1 text-xs dark:text-zinc-600 text-zinc-400">
-          <Clock className="w-3 h-3 shrink-0" />
-          Added {formatDate(property.created_at)}
+        <div className="pt-2 mt-auto border-t dark:border-zinc-800 border-zinc-100 flex items-center justify-between gap-2 text-xs dark:text-zinc-600 text-zinc-400">
+          <span className="flex items-center gap-1">
+            <Clock className="w-3 h-3 shrink-0" />
+            Added {formatDate(property.created_at)}
+          </span>
+          {property.posted_by_email && (
+            <span className="truncate max-w-[140px] text-[10px] font-medium dark:text-zinc-500 text-zinc-400" title={property.posted_by_email}>
+              by {property.posted_by_email}
+            </span>
+          )}
         </div>
       </div>
       
